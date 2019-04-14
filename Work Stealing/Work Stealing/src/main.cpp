@@ -16,6 +16,7 @@ int main()
 	{
 		thread.GiveTask(std::bind(Task, i), -1);
 	}
+	std::cout << "Stopped spawning threads\n";
 
 	std::this_thread::sleep_for(std::chrono::seconds(50));
 }

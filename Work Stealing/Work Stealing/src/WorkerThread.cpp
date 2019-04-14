@@ -32,7 +32,7 @@ void WorkerThread::GiveTask(const decltype(Task::m_task)& task, Task::FlagType f
 
 std::optional<Task> WorkerThread::Steal()
 {
-	return std::nullopt;
+	return Pop(); // With this slick queue, Steal() and Pop() can be the same
 }
 
 void WorkerThread::Wait()

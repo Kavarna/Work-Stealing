@@ -36,7 +36,7 @@ public:
 
 	// TODO: Implement
 	std::optional<Task> Steal();
-	uint32_t getNumTasks() { return 0; };
+	uint32_t getNumTasks() const { return m_allTasks.size_approx(); };
 
 	void Wait();
 	void StartAfterWait();
