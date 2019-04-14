@@ -15,8 +15,13 @@ public:
 	Dispatch(uint32_t numThreads);
 
 public:
+	int selectBestThread();
 	void GiveTask(Task&& task);
 	void GiveTask(const decltype(Task::m_task)& task, Task::FlagType);
+	
+	// TODO: Implement wait functions (WaitAll and WaitFlag)
+	void WaitAll();
+	void Wait(const decltype(Task::FlagType) flag);
 
 private:
 	void AllocateThreads(uint32_t numThreads);
@@ -25,4 +30,6 @@ private:
 private:
 	uint32_t							m_numThreads;
 	std::vector<ThreadPtr>				m_workerThreads;
+	
+	// TODO: Implement a queue for main thread, so it won't sleep too much
 };

@@ -25,8 +25,10 @@ public:
 	~WorkerThread();
 
 public:
-	void GiveTask(Task&& task);
-	void GiveTask(const decltype(Task::m_task)& task, Task::FlagType);
+	void Start();
+
+	bool GiveTask(Task&& task);
+	bool GiveTask(const decltype(Task::m_task)& task, Task::FlagType);
 
 	std::optional<Task> Steal();
 	uint32_t getNumTasks() const { return (uint32_t)m_allTasks.size_approx(); };

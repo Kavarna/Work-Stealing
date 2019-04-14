@@ -4,8 +4,6 @@ WorkerThread::WorkerThread(std::function<std::optional<Task>()> stealFunc) :
 	m_stealFunction(stealFunc)
 {
 	m_running = true;
-
-	m_thread = std::thread(&WorkerThread::Run, this);
 }
 
 WorkerThread::~WorkerThread()
@@ -18,16 +16,31 @@ WorkerThread::~WorkerThread()
 	m_thread.detach();
 }
 
-void WorkerThread::GiveTask(Task&& task)
+void WorkerThread::Start()
 {
-	m_allTasks.try_enqueue(task);
-	m_conditionVariable.notify_one();
+	m_thread = std::thread(&WorkerThread::Run, this);
 }
 
-void WorkerThread::GiveTask(const decltype(Task::m_task)& task, Task::FlagType flag)
+bool WorkerThread::GiveTask(Task&& task)
 {
-	m_allTasks.try_enqueue(Task{ task, flag });
+	bool result = m_allTasks.try_enqueue(task);
+	if (!result)
+	{
+		return false;
+	}
 	m_conditionVariable.notify_one();
+	return true;
+}
+
+bool WorkerThread::GiveTask(const decltype(Task::m_task)& task, Task::FlagType flag)
+{
+	bool result = m_allTasks.try_enqueue(Task{ task, flag });
+	if (!result)
+	{
+		return false;
+	}
+	m_conditionVariable.notify_one();
+	return true;
 }
 
 std::optional<Task> WorkerThread::Steal()
@@ -63,12 +76,17 @@ std::optional<Task> WorkerThread::Pop()
 	Task task;
 	found = m_allTasks.try_dequeue(task);
 	if (found)
+	{
 		return task;
+	}
 	return std::nullopt;
 }
 
 void WorkerThread::Run()
 {
+	// TODO: Somehow remove this
+	std::this_thread::sleep_for(std::chrono::milliseconds(1));
+	
 	std::unique_lock<std::mutex> locker(m_threadMutex);
 	while (true)
 	{
@@ -77,7 +95,6 @@ void WorkerThread::Run()
 		{
 			m_conditionVariable.wait(locker, [&] { task = GetTask(); return task.has_value(); });
 		}
-
 
 		(*task).m_task();
 	}

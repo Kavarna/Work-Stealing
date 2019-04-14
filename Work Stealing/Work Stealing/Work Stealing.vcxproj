@@ -124,6 +124,7 @@
     <ClCompile Include="src\WorkerThread.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\common.h" />
     <ClInclude Include="src\concurrentqueue.h" />
     <ClInclude Include="src\Dispatch.h" />
     <ClInclude Include="src\interfaces\ISingletone.h" />
