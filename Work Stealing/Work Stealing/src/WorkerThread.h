@@ -7,18 +7,12 @@
 #include <condition_variable>
 
 #include "concurrentqueue.h"
+#include "Task.h"
 
 #if defined _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
-
-struct Task
-{
-	typedef uint64_t FlagType;
-	std::function<void()> m_task;
-	FlagType flag;
-};
 
 class WorkerThread
 {
@@ -34,9 +28,8 @@ public:
 	void GiveTask(Task&& task);
 	void GiveTask(const decltype(Task::m_task)& task, Task::FlagType);
 
-	// TODO: Implement
 	std::optional<Task> Steal();
-	uint32_t getNumTasks() const { return m_allTasks.size_approx(); };
+	uint32_t getNumTasks() const { return (uint32_t)m_allTasks.size_approx(); };
 
 	void Wait();
 	void StartAfterWait();

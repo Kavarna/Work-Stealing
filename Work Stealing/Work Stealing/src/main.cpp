@@ -1,4 +1,4 @@
-#include "WorkerThread.h"
+#include "Dispatch.h"
 #include <iostream>
 
 void Task(int arg)
@@ -8,15 +8,13 @@ void Task(int arg)
 
 int main()
 {
-	WorkerThread thread([]
-	{
-		return std::nullopt;
-	});
+	auto dispatch = Dispatch::Get(1);
+
 	for (int i = 0; i < 100; ++i)
 	{
-		thread.GiveTask(std::bind(Task, i), -1);
+		dispatch->GiveTask(std::bind(Task, i), -1);
 	}
-	std::cout << "Stopped spawning threads\n";
 
-	std::this_thread::sleep_for(std::chrono::seconds(50));
+
+	std::this_thread::sleep_for(std::chrono::seconds(60));
 }
