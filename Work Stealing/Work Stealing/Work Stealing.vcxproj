@@ -119,13 +119,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\Dispatch.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\WorkerThread.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Dispatch.h" />
-    <ClInclude Include="src\Task.h" />
+    <ClInclude Include="src\concurrentqueue.h" />
+    <ClInclude Include="src\interfaces\ISingletone.h" />
+    <ClInclude Include="src\meta\CountParameters.h" />
     <ClInclude Include="src\WorkerThread.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

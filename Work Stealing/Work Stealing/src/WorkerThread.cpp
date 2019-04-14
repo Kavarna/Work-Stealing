@@ -1,9 +1,7 @@
 #include "WorkerThread.h"
 
-WorkerThread::WorkerThread(std::function<std::optional<Task>()> stealFunc,
-	std::function<void(Task::FlagType)> triggerFlag):
-	m_stealFunction(stealFunc),
-	m_triggerFlag(triggerFlag)
+WorkerThread::WorkerThread(std::function<std::optional<Task>()> stealFunc) :
+	m_stealFunction(stealFunc)
 {
 	m_running = true;
 
@@ -20,20 +18,20 @@ WorkerThread::~WorkerThread()
 	m_thread.detach();
 }
 
-void WorkerThread::GiveTask(const Task & task)
+void WorkerThread::GiveTask(Task&& task)
 {
-	m_allTasks.push_back(task);
-	m_nTasks++;
+	m_allTasks.try_enqueue(task);
+	m_conditionVariable.notify_one();
+}
+
+void WorkerThread::GiveTask(const decltype(Task::m_task)& task, Task::FlagType flag)
+{
+	m_allTasks.try_enqueue(Task{ task, flag });
+	m_conditionVariable.notify_one();
 }
 
 std::optional<Task> WorkerThread::Steal()
 {
-	if (m_nTasks > 1)
-	{
-		Task task = m_allTasks.back();
-		m_nTasks--;
-		return task;
-	}
 	return std::nullopt;
 }
 
@@ -52,7 +50,6 @@ std::optional<Task> WorkerThread::GetTask()
 {
 	if (m_wait)
 		return std::nullopt;
-	//return Pop().value_or(m_stealFunction());
 	auto myTask = Pop();
 	if (myTask.has_value())
 		return myTask;
@@ -62,29 +59,26 @@ std::optional<Task> WorkerThread::GetTask()
 
 std::optional<Task> WorkerThread::Pop()
 {
-	if (m_nTasks > 0)
-	{
-		Task task = m_allTasks.front();
-		m_nTasks--;
+	bool found;
+	Task task;
+	found = m_allTasks.try_dequeue(task);
+	if (found)
 		return task;
-	}
 	return std::nullopt;
 }
 
 void WorkerThread::Run()
 {
+	std::unique_lock<std::mutex> locker(m_threadMutex);
 	while (true)
 	{
 		auto task = GetTask();
 		while (!task.has_value())
 		{
-			std::unique_lock<std::mutex> locker(m_threadMutex);
-			m_conditionVariable.wait(locker, [&] { return m_nTasks > 0; });
-			task = GetTask();
+			m_conditionVariable.wait(locker, [&] { task = GetTask(); return task.has_value(); });
 		}
 
 
 		(*task).m_task();
-		m_triggerFlag((*task).triggerFlag);
 	}
 }

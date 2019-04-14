@@ -2,35 +2,41 @@
 
 #include <thread>
 #include <atomic>
-#include <deque>
 #include <optional>
 #include <mutex>
 #include <condition_variable>
 
-#include "Task.h"
+#include "concurrentqueue.h"
 
 #if defined _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 
+struct Task
+{
+	typedef uint64_t FlagType;
+	std::function<void()> m_task;
+	FlagType flag;
+};
+
 class WorkerThread
 {
 public:
 	WorkerThread() = delete;
-	explicit WorkerThread(std::function<std::optional<Task>()> stealFunc,
-		std::function<void(Task::FlagType)> triggerFlag);
+	explicit WorkerThread(std::function<std::optional<Task>()> stealFunc);
 	WorkerThread(const WorkerThread&&) = delete;
 	WorkerThread(const WorkerThread&) = delete;
 	const WorkerThread& operator=(const WorkerThread&) = delete;
 	~WorkerThread();
 
 public:
-	void GiveTask(const Task& task);
+	void GiveTask(Task&& task);
+	void GiveTask(const decltype(Task::m_task)& task, Task::FlagType);
 
+	// TODO: Implement
 	std::optional<Task> Steal();
-
-	uint32_t getNumTasks() { return m_nTasks; };
+	uint32_t getNumTasks() { return 0; };
 
 	void Wait();
 	void StartAfterWait();
@@ -52,8 +58,6 @@ private:
 	bool										m_running = false;
 
 	std::function<std::optional<Task>()>		m_stealFunction = nullptr;
-	std::function<void(Task::FlagType)>			m_triggerFlag = nullptr;
 
-	std::deque<Task>							m_allTasks;
-	std::atomic<uint32_t>						m_nTasks;
+	moodycamel::ConcurrentQueue<Task>			m_allTasks;
 };

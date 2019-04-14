@@ -18,21 +18,21 @@
     <ClCompile Include="src\main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Dispatch.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\WorkerThread.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Dispatch.h">
+    <ClInclude Include="src\concurrentqueue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\WorkerThread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Task.h">
+    <ClInclude Include="src\meta\CountParameters.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\interfaces\ISingletone.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
