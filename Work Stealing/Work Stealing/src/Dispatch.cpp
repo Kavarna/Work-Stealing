@@ -20,6 +20,9 @@ void Dispatch::AllocateThreads(uint32_t numThreads)
 	for (uint32_t i = 0; i < numThreads; ++i)
 	{
 		m_workerThreads[i] = std::make_unique<WorkerThread>(std::bind(&Dispatch::Steal, this, i));
+	}
+	for (uint32_t i = 0; i < numThreads; ++i)
+	{
 		m_workerThreads[i]->Start();
 	}
 }
@@ -62,16 +65,13 @@ void Dispatch::GiveTask(Task&& task)
 
 void Dispatch::GiveTask(const decltype(Task::m_task)& task, Task::FlagType flag)
 {
-	int bestThread = selectBestThread();
-	
-	if (!m_workerThreads[bestThread]->GiveTask(std::move(Task{ task, flag })))
-		task();
+	GiveTask(std::move(Task{ task, flag }));
 }
 
 void Dispatch::WaitAll()
 {
 }
 
-void Dispatch::Wait(const decltype(Task::FlagType) flag)
+void Dispatch::Wait(const Task::FlagType flag)
 {
 }

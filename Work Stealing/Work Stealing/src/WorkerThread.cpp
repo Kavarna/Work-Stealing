@@ -84,9 +84,6 @@ std::optional<Task> WorkerThread::Pop()
 
 void WorkerThread::Run()
 {
-	// TODO: Somehow remove this
-	std::this_thread::sleep_for(std::chrono::milliseconds(1));
-	
 	std::unique_lock<std::mutex> locker(m_threadMutex);
 	while (true)
 	{

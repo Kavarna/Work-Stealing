@@ -21,7 +21,7 @@ public:
 	
 	// TODO: Implement wait functions (WaitAll and WaitFlag)
 	void WaitAll();
-	void Wait(const decltype(Task::FlagType) flag);
+	void Wait(const Task::FlagType flag);
 
 private:
 	void AllocateThreads(uint32_t numThreads);

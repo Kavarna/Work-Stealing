@@ -25,4 +25,14 @@ int main()
 	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(2));
+	
+	for (int i = 0; i < MAX_SIZE; ++i)
+	{
+		if (tasks[i] == false)
+		{
+			std::cout << "Oooooopsie\n";
+			return 1;
+		}
+	}
+	return 0;
 }
