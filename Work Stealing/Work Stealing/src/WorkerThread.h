@@ -18,7 +18,8 @@ class WorkerThread
 {
 public:
 	WorkerThread() = delete;
-	explicit WorkerThread(std::function<std::optional<Task>()> stealFunc);
+	explicit WorkerThread(std::function<std::optional<Task>()> stealFunc,
+		std::function<void(Task::FlagType)> callbackWhenDone);
 	WorkerThread(const WorkerThread&&) = delete;
 	WorkerThread(const WorkerThread&) = delete;
 	const WorkerThread& operator=(const WorkerThread&) = delete;
@@ -53,6 +54,7 @@ private:
 	bool										m_running = false;
 
 	std::function<std::optional<Task>()>		m_stealFunction = nullptr;
+	std::function<void(Task::FlagType)>			m_callbackWhenDone = nullptr;
 
 	moodycamel::ConcurrentQueue<Task>			m_allTasks;
 };

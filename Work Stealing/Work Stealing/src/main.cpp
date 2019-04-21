@@ -12,19 +12,20 @@ void Task(int arg)
 	char buffer[255];
 	sprintf_s(buffer, "Simulating work %d from thread %d\n", arg, std::this_thread::get_id());
 	std::cout << buffer;
-	std::this_thread::sleep_for(std::chrono::nanoseconds(50));
+	//std::this_thread::sleep_for(std::chrono::nanoseconds(50));
 }
 
 int main()
 {
-	auto dispatch = Dispatch::Get();
+	auto dispatch = Dispatch::Get(50);
 
 	for (int i = 0; i < MAX_SIZE; ++i)
 	{
-		dispatch->GiveTask(std::bind(Task, i), -1);
+		dispatch->GiveTask(std::bind(Task, i), i);
 	}
 
 	std::this_thread::sleep_for(std::chrono::seconds(2));
+	//dispatch->WaitAll();
 	
 	for (int i = 0; i < MAX_SIZE; ++i)
 	{

@@ -4,6 +4,7 @@
 #include "interfaces/ISingletone.h"
 #include "WorkerThread.h"
 #include <vector>
+#include <unordered_set>
 
 
 
@@ -26,10 +27,12 @@ public:
 private:
 	void AllocateThreads(uint32_t numThreads);
 	std::optional<Task> Steal(uint32_t threadIndex);
+	void FinishTask(Task::FlagType flag);
 
 private:
 	uint32_t							m_numThreads;
 	std::vector<ThreadPtr>				m_workerThreads;
-	
+
+	std::unordered_set<Task::FlagType>	m_activeKeys;
 	// TODO: Implement a queue for main thread, so it won't sleep too much
 };

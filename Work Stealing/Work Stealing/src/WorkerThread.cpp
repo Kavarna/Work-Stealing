@@ -1,13 +1,16 @@
 #include "WorkerThread.h"
 
-WorkerThread::WorkerThread(std::function<std::optional<Task>()> stealFunc) :
-	m_stealFunction(stealFunc)
+WorkerThread::WorkerThread(std::function<std::optional<Task>()> stealFunc,
+	std::function<void(Task::FlagType)> callbackWhenDone) :
+	m_stealFunction(stealFunc),
+	m_callbackWhenDone(callbackWhenDone)
 {
 	m_running = true;
 }
 
 WorkerThread::~WorkerThread()
 {
+	m_running = false;
 #if defined _WIN32
 	HANDLE threadHandle = m_thread.native_handle();
 	TerminateThread(threadHandle, 0);
@@ -36,9 +39,8 @@ bool WorkerThread::GiveTask(const decltype(Task::m_task)& task, Task::FlagType f
 {
 	bool result = m_allTasks.try_enqueue(Task{ task, flag });
 	if (!result)
-	{
 		return false;
-	}
+
 	m_conditionVariable.notify_one();
 	return true;
 }
@@ -94,5 +96,6 @@ void WorkerThread::Run()
 		}
 
 		(*task).m_task();
+		m_callbackWhenDone((*task).flag);
 	}
 }

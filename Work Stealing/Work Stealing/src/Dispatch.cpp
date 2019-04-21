@@ -5,7 +5,7 @@
 
 Dispatch::Dispatch()
 {
-	AllocateThreads(std::thread::hardware_concurrency());
+	AllocateThreads(std::thread::hardware_concurrency() - 1); // Main thread is also a thread
 }
 
 Dispatch::Dispatch(uint32_t numThreads)
@@ -19,7 +19,8 @@ void Dispatch::AllocateThreads(uint32_t numThreads)
 	m_workerThreads.resize(numThreads);
 	for (uint32_t i = 0; i < numThreads; ++i)
 	{
-		m_workerThreads[i] = std::make_unique<WorkerThread>(std::bind(&Dispatch::Steal, this, i));
+		m_workerThreads[i] = std::make_unique<WorkerThread>(std::bind(&Dispatch::Steal, this, i),
+			std::bind(&Dispatch::FinishTask, this, std::placeholders::_1));
 	}
 	for (uint32_t i = 0; i < numThreads; ++i)
 	{
@@ -37,6 +38,13 @@ std::optional<Task> Dispatch::Steal(uint32_t threadIndex)
 			return value;
 	}
 	return std::nullopt;
+}
+
+void Dispatch::FinishTask(Task::FlagType flag)
+{
+	// TODO: Make this thread-safe
+	// m_activeKeys.erase(flag);
+	// m_condVariable.notify_one();
 }
 
 int Dispatch::selectBestThread()
@@ -57,10 +65,14 @@ int Dispatch::selectBestThread()
 
 void Dispatch::GiveTask(Task&& task)
 {
+	m_activeKeys.insert(task.flag);
 	int bestThread = selectBestThread();
 
 	if (!m_workerThreads[bestThread]->GiveTask(std::move(task)))
+	{
 		task.m_task();
+		m_activeKeys.erase(task.flag);
+	}
 }
 
 void Dispatch::GiveTask(const decltype(Task::m_task)& task, Task::FlagType flag)
