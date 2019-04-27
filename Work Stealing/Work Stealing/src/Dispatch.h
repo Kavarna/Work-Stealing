@@ -5,6 +5,7 @@
 #include "SetMonitor.h"
 #include "WorkerThread.h"
 #include "Task.h"
+#include "interfaces/IWorker.h"
 #include <vector>
 #include <unordered_set>
 

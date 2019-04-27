@@ -6,15 +6,15 @@
 #include <mutex>
 #include <condition_variable>
 
-#include "concurrentqueue.h"
 #include "Task.h"
+#include "interfaces/IWorker.h"
 
 #if defined _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #endif
 
-class WorkerThread
+class WorkerThread : public IWorker
 {
 public:
 	WorkerThread() = delete;
@@ -28,8 +28,8 @@ public:
 public:
 	void Start();
 
-	bool GiveTask(Task&& task);
-	bool GiveTask(const decltype(Task::m_task)& task, Task::FlagType);
+	bool GiveTask(Task&& task) override;
+	bool GiveTask(const decltype(Task::m_task)& task, Task::FlagType) override;
 
 	std::optional<Task> Steal();
 	uint32_t getNumTasks() const { return (uint32_t)m_allTasks.size_approx(); };
@@ -55,6 +55,4 @@ private:
 
 	std::function<std::optional<Task>()>		m_stealFunction = nullptr;
 	std::function<void(Task::FlagType)>			m_callbackWhenDone = nullptr;
-
-	moodycamel::ConcurrentQueue<Task>			m_allTasks;
 };

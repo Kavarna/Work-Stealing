@@ -1,5 +1,6 @@
 #include "WorkerThread.h"
 
+
 WorkerThread::WorkerThread(std::function<std::optional<Task>()> stealFunc,
 	std::function<void(Task::FlagType)> callbackWhenDone) :
 	m_stealFunction(stealFunc),

@@ -4,6 +4,8 @@
 #include <unordered_set>
 #include <mutex>
 
+#include <Windows.h>
+
 
 template <class KeyType>
 class SetMonitor
@@ -31,12 +33,18 @@ public:
 	void Insert(const KeyType& key)
 	{
 		std::unique_lock<std::mutex> locker(m_locker);
+		char buffer[500];
+		sprintf_s(buffer, "Checked-in %d\n", key);
+		OutputDebugString(buffer);
 		m_set.insert(key);
 	}
 
 	void Delete(const KeyType& key)
 	{
 		std::unique_lock<std::mutex> locker(m_locker);
+		char buffer[500];
+		sprintf_s(buffer, "Checked-out %d\n", key);
+		OutputDebugString(buffer);
 		if (auto keyIt = m_set.find(key); keyIt != m_set.end())
 			m_set.erase(keyIt);
 	}
