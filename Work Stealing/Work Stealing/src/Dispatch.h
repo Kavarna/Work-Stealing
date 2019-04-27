@@ -2,7 +2,9 @@
 
 
 #include "interfaces/ISingletone.h"
+#include "SetMonitor.h"
 #include "WorkerThread.h"
+#include "Task.h"
 #include <vector>
 #include <unordered_set>
 
@@ -20,7 +22,6 @@ public:
 	void GiveTask(Task&& task);
 	void GiveTask(const decltype(Task::m_task)& task, Task::FlagType);
 	
-	// TODO: Implement wait functions (WaitAll and WaitFlag)
 	void WaitAll();
 	void Wait(const Task::FlagType flag);
 
@@ -33,6 +34,10 @@ private:
 	uint32_t							m_numThreads;
 	std::vector<ThreadPtr>				m_workerThreads;
 
-	std::unordered_set<Task::FlagType>	m_activeKeys;
+	std::mutex							m_threadMutex;
+	std::condition_variable				m_condVariable;
+
+	//std::unordered_set<Task::FlagType>	m_activeKeys;
+	SetMonitor<Task::FlagType>			m_activeKeys;
 	// TODO: Implement a queue for main thread, so it won't sleep too much
 };

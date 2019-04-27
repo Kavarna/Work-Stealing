@@ -11,21 +11,30 @@ void Task(int arg)
 	tasks[arg] = true;
 	char buffer[255];
 	sprintf_s(buffer, "Simulating work %d from thread %d\n", arg, std::this_thread::get_id());
-	std::cout << buffer;
 	//std::this_thread::sleep_for(std::chrono::nanoseconds(50));
+	int i = 0;
+	while (i++ < MAX_SIZE);
+	std::cout << buffer;
 }
 
 int main()
 {
-	auto dispatch = Dispatch::Get(50);
+	auto dispatch = Dispatch::Get();
 
-	for (int i = 0; i < MAX_SIZE; ++i)
+	for (int i = 0; i < MAX_SIZE / 2; ++i)
 	{
 		dispatch->GiveTask(std::bind(Task, i), i);
 	}
 
-	std::this_thread::sleep_for(std::chrono::seconds(2));
-	//dispatch->WaitAll();
+	
+	dispatch->Wait(469);
+	
+	
+	for (int i = MAX_SIZE / 2; i < MAX_SIZE; ++i)
+	{
+		dispatch->GiveTask(std::bind(Task, i), i);
+	}
+	dispatch->WaitAll();
 	
 	for (int i = 0; i < MAX_SIZE; ++i)
 	{
