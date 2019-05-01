@@ -14,6 +14,9 @@
 class IWorker
 {
 public:
+	IWorker() : m_allTasks(300)
+	{ };
+
 	virtual bool GiveTask(Task&& task) = 0;
 	virtual bool GiveTask(const decltype(Task::m_task)& task, Task::FlagType) = 0;
 

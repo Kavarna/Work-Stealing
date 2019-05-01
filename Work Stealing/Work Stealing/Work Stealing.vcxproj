@@ -121,6 +121,7 @@
   <ItemGroup>
     <ClCompile Include="src\Dispatch.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Synchronization.cpp" />
     <ClCompile Include="src\WorkerThread.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -130,7 +131,8 @@
     <ClInclude Include="src\interfaces\ISingletone.h" />
     <ClInclude Include="src\interfaces\IWorker.h" />
     <ClInclude Include="src\meta\CountParameters.h" />
-    <ClInclude Include="src\SetMonitor.h" />
+    <ClInclude Include="src\TasksMonitor.h" />
+    <ClInclude Include="src\Synchronization.h" />
     <ClInclude Include="src\Task.h" />
     <ClInclude Include="src\WorkerThread.h" />
   </ItemGroup>

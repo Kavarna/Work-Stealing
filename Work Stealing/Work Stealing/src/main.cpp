@@ -3,7 +3,7 @@
 #include <sstream>
 #include <string>
 
-#define MAX_SIZE 1000
+#define MAX_SIZE 10000
 bool tasks[MAX_SIZE] = {};
 
 void Task(int arg)
@@ -17,22 +17,31 @@ void Task(int arg)
 	while (i++ < MAX_SIZE);
 }
 
+#if DEBUG || _DEBUG
+void DumpData()
+{
+	std::this_thread::sleep_for(std::chrono::seconds(10));
+	Dispatch::Get()->DumpData();
+}
+#endif
+
+
 int main()
 {
 	auto dispatch = Dispatch::Get();
 
+
+	std::thread th(DumpData);
 	for (int i = 0; i < MAX_SIZE; ++i)
 	{
 		dispatch->GiveTask(std::bind(Task, i), i);
+		//dispatch->Wait(i);
+		//if (i % 10 == 0)
+			//dispatch->WaitAll();
 	}
 
-	
-	
-	/*for (int i = MAX_SIZE / 2; i < MAX_SIZE; ++i)
-	{
-		dispatch->GiveTask(std::bind(Task, i), i);
-	}*/
 	dispatch->WaitAll();
+	th.join();
 	
 	for (int i = 0; i < MAX_SIZE; ++i)
 	{

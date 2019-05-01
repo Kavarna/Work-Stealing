@@ -24,6 +24,9 @@
     <ClCompile Include="src\Dispatch.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Synchronization.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\concurrentqueue.h">
@@ -47,10 +50,13 @@
     <ClInclude Include="src\common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SetMonitor.h">
+    <ClInclude Include="src\interfaces\IWorker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\interfaces\IWorker.h">
+    <ClInclude Include="src\Synchronization.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\TasksMonitor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -43,7 +43,7 @@ std::optional<Task> Dispatch::Steal(uint32_t threadIndex)
 void Dispatch::FinishTask(Task::FlagType flag)
 {
 	m_activeKeys.Delete(flag);
-	m_condVariable.notify_one();
+	g_conditionVariable.notify_all();
 }
 
 int Dispatch::selectBestThread()
@@ -64,13 +64,19 @@ int Dispatch::selectBestThread()
 
 void Dispatch::GiveTask(Task&& task)
 {
-	m_activeKeys.Insert(task.flag);
 	int bestThread = selectBestThread();
+
+#if DEBUG || _DEBUG
+	m_activeKeys.Insert(task.flag, bestThread);
+#else
+	m_activeKeys.Insert(task.flag);
+#endif
 
 	if (!m_workerThreads[bestThread]->GiveTask(std::move(task)))
 	{
 		// TODO: Store it on main thread's queue (when it will be possible)
 		task.m_task();
+		m_activeKeys.Delete(task.flag);
 	}
 }
 
@@ -81,12 +87,12 @@ void Dispatch::GiveTask(const decltype(Task::m_task)& task, Task::FlagType flag)
 
 void Dispatch::WaitAll()
 {
-	std::unique_lock<std::mutex> locker(m_threadMutex);
-	m_condVariable.wait(locker, [&] { return m_activeKeys.Empty(); });
+	Lock<decltype(g_mutex)> locker(g_mutex);
+	g_conditionVariable.wait(locker, [&] { return m_activeKeys.Empty(); });
 }
 
 void Dispatch::Wait(const Task::FlagType flag)
 {
-	std::unique_lock<std::mutex> locker(m_threadMutex);
-	m_condVariable.wait(locker, [&] { return !m_activeKeys.HasValue(flag); });
+	Lock<decltype(g_mutex)> locker(g_mutex);
+	g_conditionVariable.wait(locker, [&] { return !m_activeKeys.HasValue(flag); });
 }

@@ -32,7 +32,8 @@ bool WorkerThread::GiveTask(Task&& task)
 	{
 		return false;
 	}
-	m_conditionVariable.notify_one();
+	//m_conditionVariable.notify_one();
+	g_conditionVariable.notify_all();
 	return true;
 }
 
@@ -42,7 +43,8 @@ bool WorkerThread::GiveTask(const decltype(Task::m_task)& task, Task::FlagType f
 	if (!result)
 		return false;
 
-	m_conditionVariable.notify_one();
+	//m_conditionVariable.notify_one();
+	g_conditionVariable.notify_all();
 	return true;
 }
 
@@ -59,7 +61,8 @@ void WorkerThread::Wait()
 void WorkerThread::StartAfterWait()
 {
 	m_wait = false;
-	m_conditionVariable.notify_one();
+	//m_conditionVariable.notify_one();
+	g_conditionVariable.notify_all();
 }
 
 std::optional<Task> WorkerThread::GetTask()
@@ -87,13 +90,14 @@ std::optional<Task> WorkerThread::Pop()
 
 void WorkerThread::Run()
 {
-	std::unique_lock<std::mutex> locker(m_threadMutex);
+	//std::unique_lock<std::mutex> locker(m_threadMutex);
+	Lock<decltype(g_mutex)> locker(g_mutex);
 	while (true)
 	{
 		auto task = GetTask();
 		while (!task.has_value())
 		{
-			m_conditionVariable.wait(locker, [&] { task = GetTask(); return task.has_value(); });
+			g_conditionVariable.wait(locker, [&] { task = GetTask(); return task.has_value(); });
 		}
 
 		(*task).m_task();
