@@ -40,7 +40,7 @@ public:
 	void Insert(const KeyType& key)
 	{
 		std::unique_lock<std::mutex> locker(m_locker);
-#if DEBUG || _DEBUG
+#if _TEXT_DEBUG_
 		char buffer[500];
 		sprintf_s(buffer, "Checked-in %d; Size = %d \n", key, m_set.size());
 		OutputDebugString(buffer);
@@ -52,9 +52,11 @@ public:
 	void Insert(const KeyType& key, int threadID)
 	{
 		std::unique_lock<std::mutex> locker(m_locker);
+#if _TEXT_DEBUG_
 		char buffer[500];
 		sprintf_s(buffer, "Checked-in %d; Size = %d \n", key, m_set.size());
 		OutputDebugString(buffer);
+#endif
 		m_set.insert({ key, {threadID} });
 	}
 #endif
@@ -62,7 +64,7 @@ public:
 	void Delete(const KeyType& key)
 	{
 		std::unique_lock<std::mutex> locker(m_locker);
-#if DEBUG || _DEBUG
+#if _TEXT_DEBUG_
 		char buffer[500];
 		sprintf_s(buffer, "Checked-out %d; Size = %d \n", key, m_set.size());
 		OutputDebugString(buffer);
@@ -74,7 +76,7 @@ public:
 	bool Empty()
 	{
 		std::unique_lock<std::mutex> locker(m_locker);
-#if DEBUG || _DEBUG
+#if _TEXT_DEBUG_
 		OutputDebugString("Empty()\n");
 #endif
 		return m_set.empty();

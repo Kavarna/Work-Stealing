@@ -70,8 +70,6 @@ private:
 
 private:
 	std::thread									m_thread;
-	//std::mutex									m_threadMutex;
-	//std::condition_variable						m_conditionVariable;
 
 	
 	bool										m_wait = false;

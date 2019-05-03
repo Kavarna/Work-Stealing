@@ -31,17 +31,17 @@ int main()
 	auto dispatch = Dispatch::Get();
 
 
-	std::thread th(DumpData);
+	//std::thread th(DumpData);
 	for (int i = 0; i < MAX_SIZE; ++i)
 	{
 		dispatch->GiveTask(std::bind(Task, i), i);
-		//dispatch->Wait(i);
-		//if (i % 10 == 0)
+		dispatch->Wait(i);
+		//if (i % 100 == 0)
 			//dispatch->WaitAll();
 	}
 
 	dispatch->WaitAll();
-	th.join();
+	//th.join();
 	
 	for (int i = 0; i < MAX_SIZE; ++i)
 	{
