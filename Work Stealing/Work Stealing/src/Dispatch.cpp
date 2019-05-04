@@ -87,12 +87,24 @@ void Dispatch::GiveTask(const decltype(Task::m_task)& task, Task::FlagType flag)
 
 void Dispatch::WaitAll()
 {
-	Lock<decltype(g_mutex)> locker(g_mutex);
-	g_conditionVariable.wait(locker, [&] { return m_activeKeys.Empty(); });
+	while (true)
+	{
+		Lock<decltype(g_mutex)> locker(g_mutex);
+		g_conditionVariable.wait_for(locker, std::chrono::nanoseconds(500), [&] { return m_activeKeys.Empty(); });
+		g_conditionVariable.notify_all();
+		if (m_activeKeys.Empty())
+			return;
+	}
 }
 
 void Dispatch::Wait(const Task::FlagType flag)
 {
-	Lock<decltype(g_mutex)> locker(g_mutex);
-	g_conditionVariable.wait(locker, [&] { return !m_activeKeys.HasValue(flag); });
+	while (true)
+	{
+		Lock<decltype(g_mutex)> locker(g_mutex);
+		g_conditionVariable.wait_for(locker, std::chrono::nanoseconds(500), [&] { return !m_activeKeys.HasValue(flag); });
+		g_conditionVariable.notify_all();
+		if (!m_activeKeys.HasValue(flag))
+			return;
+	}
 }

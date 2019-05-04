@@ -36,8 +36,8 @@ int main()
 	{
 		dispatch->GiveTask(std::bind(Task, i), i);
 		dispatch->Wait(i);
-		//if (i % 100 == 0)
-			//dispatch->WaitAll();
+		if (i % 100 == 0)
+			dispatch->WaitAll();
 	}
 
 	dispatch->WaitAll();
